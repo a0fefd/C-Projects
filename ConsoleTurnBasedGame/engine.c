@@ -3,9 +3,22 @@
 #include "engine.h"
 #include "data.h"
 
+void clrscr()
+{
+    #if _WIN64 
+        system("cls");
+    #elif _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
 int Setup(struct Player player1, struct Player player2, struct Class classes[4])
 {
     char scan1[8]; char scan2[8];
+
+    clrscr();
 
     printf("Classes:\n");
     for (int i = 1; i < 5; i++) {

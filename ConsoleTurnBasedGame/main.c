@@ -28,12 +28,12 @@ int main(int argc, char **argv)
     strcpy(suspistol.name, "Walther PPK 7.65");
 
     // Set the type of each item
-    broadsword.type = longsword.type = dagger.type = grenade.type = suspistol.type = TYPES[0]; // Weapon
-    health_potion.type = cocaine.type = TYPES[1]; // Support
+    broadsword.type = longsword.type = dagger.type = grenade.type= TYPES[0]; // Weapon
+    health_potion.type = cocaine.type = suspistol.type = TYPES[1]; // Support
 
     // Set the final item stats
     
-    cocaine.healthDiff = 5; // Health +
+    cocaine.healthDiff = 10; // Health +
     health_potion.healthDiff = 25;
     
     broadsword.healthDiff = -10; // Health -
