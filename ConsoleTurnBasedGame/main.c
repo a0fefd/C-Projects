@@ -6,17 +6,19 @@
 
 int main(int argc, char **argv) 
 {
+    int running;
+
     // Item types; Weapon, Support
     char TYPES[2] = { 'W', 'S' };
 
     // Define each base item
-    struct Item broadsword;
-    struct Item longsword;
-    struct Item health_potion;
-    struct Item dagger;
-    struct Item grenade;
-    struct Item cocaine;
-    struct Item suspistol;
+    Item broadsword;
+    Item longsword;
+    Item health_potion;
+    Item dagger;
+    Item grenade;
+    Item cocaine;
+    Item suspistol;
 
     // Set the name of each item
     strcpy(broadsword.name, "Broadsword");
@@ -43,10 +45,10 @@ int main(int argc, char **argv)
     suspistol.healthDiff = -999;
 
     // Define and setup the different effects
-    struct Effect health_damage;
-    struct Effect super_health;
-    struct Effect super_damage;
-    struct Effect death;
+    Effect health_damage;
+    Effect super_health;
+    Effect super_damage;
+    Effect death;
 
     health_damage.damageDiff = 10;
     health_damage.damageMulti = 1.2f;
@@ -70,17 +72,17 @@ int main(int argc, char **argv)
 
 
     // Define each base class and their abilities
-    struct Class blackman;
-    struct ClassAbility dropped_soap;
+    Class blackman;
+    ClassAbility dropped_soap;
 
-    struct Class vietcong;
-    struct ClassAbility one_with_the_trees;
+    Class vietcong;
+    ClassAbility one_with_the_trees;
     
-    struct Class mexican;
-    struct ClassAbility coke_vacuum;
+    Class mexican;
+    ClassAbility coke_vacuum;
 
-    struct Class austrian_painter;
-    struct ClassAbility third_reich;
+    Class austrian_painter;
+    ClassAbility third_reich;
 
     // Setup the abilities
     strcpy(dropped_soap.name, "Make them Drop the Soap");
@@ -105,7 +107,7 @@ int main(int argc, char **argv)
 
 
 
-    // Set the class stats
+    // Set the Class stats
     strcpy(blackman.name, "Literal Blackman");
     blackman.healthModifier = 1.5f;
     blackman.ability = dropped_soap;
@@ -155,18 +157,30 @@ int main(int argc, char **argv)
     austrian_painter.inv[7] = health_potion;
 
     // Define each player
-    struct Player p1;
-    struct Player p2;
+    Player player1;
+    Player player2;
 
     // Array of all the classes
-    struct Class classes[4] = {
+    Class classes[4] = {
         blackman,
         vietcong,
         mexican,
         austrian_painter
     };
     
-    Setup(p1, p2, classes);
+    Response res = Setup(&player1, &player2, classes);
+
+    switch (res.ret)
+    {
+    case -1:
+        printf("\n%s\n", res.message);
+        return -1;
+        // break;
+    default:
+        running = 1;
+        Engine(running, player1, player2, classes);
+        break;
+    }
 
     return 0;
 }

@@ -5,7 +5,7 @@
 
 void clrscr();
 
-int Setup(struct Player player1, struct Player player2, struct Class classes[4]);
-int Engine();
+Response Setup(Player *player1, Player *player2, Class classes[]);
+int Engine(int running, Player player1, Player player2, Class classes[]);
 
 #endif

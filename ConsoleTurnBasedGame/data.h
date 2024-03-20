@@ -1,44 +1,59 @@
+#include <string.h>
+#include "keycodes.h"
+
 #ifndef DATA_H_
 #define DATA_H_
 
-struct Item 
+struct _Response
+{
+    char message[256];
+    int ret;
+};
+typedef struct _Response Response;
+
+struct _Item 
 {
     char name[20];
     char type;
     int healthDiff;
 };
+typedef struct _Item Item;
 
-struct Effect 
+struct _Effect 
 {
     int healthDiff;
     float healthMulti;
     int damageDiff;
     float damageMulti;
 };
+typedef struct _Effect Effect;
 
-struct ClassAbility
+struct _ClassAbility
 {
     char name[64];
     char message[64];
     int delay;
-    struct Effect effect;
+    Effect effect;
 };
+typedef struct _ClassAbility ClassAbility;
 
-struct Class 
+struct _Class 
 {
     char name[20];
     float healthModifier;
-    struct ClassAbility ability;
-    struct Item inv[8];
+    ClassAbility ability;
+    Item inv[8];
 };
+typedef struct _Class Class;
 
-struct Player 
+struct _Player 
 {
     int identifier;
     char type;
     int health;
     int isTurn; 
-    struct Class playerClass;
+    Class playerClass;
 };
+typedef struct _Player Player;
 
 #endif
