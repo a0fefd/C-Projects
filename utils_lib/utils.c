@@ -15,6 +15,11 @@ void clrscr()
     printf("\e[1;1H\e[2J");
 }
 
+void invert(int *var)
+{
+    *var = !*var;
+}
+
 int findIndexInt(int *arr, int target)
 {
     size_t arrSize = sizeof(arr) / sizeof(int*);

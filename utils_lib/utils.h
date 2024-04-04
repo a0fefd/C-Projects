@@ -6,6 +6,7 @@
 #endif
 
 void clrscr();
+void invert(int *var);
 
 int findIndexInt(int *arr, int target);
 int findIndexChar(char *arr, char target);
