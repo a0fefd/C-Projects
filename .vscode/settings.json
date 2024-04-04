@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "engine.h": "c",
-        "data.h": "c"
+        "data.h": "c",
+        "string.h": "c",
+        "keycodes.h": "c",
+        "_err.h": "c"
     }
 }
