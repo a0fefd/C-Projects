@@ -8,9 +8,6 @@ int main(int argc, char **argv)
 {
     int running;
 
-    // Item types; Weapon, Support
-    char TYPES[2] = { 'W', 'S' };
-
     // Define each base item
     Item broadsword;
     Item longsword;
@@ -30,19 +27,21 @@ int main(int argc, char **argv)
     strcpy(suspistol.name, "Walther PPK 7.65");
 
     // Set the type of each item
-    broadsword.type = longsword.type = dagger.type = grenade.type= TYPES[0]; // Weapon
-    health_potion.type = cocaine.type = suspistol.type = TYPES[1]; // Support
+    broadsword.type = longsword.type = dagger.type = grenade.type = 'W'; // Weapon
+    health_potion.type = cocaine.type = suspistol.type = 'S'; // Support
 
     // Set the final item stats
-    
     cocaine.healthDiff = 10; // Health +
     health_potion.healthDiff = 25;
-    
+
     broadsword.healthDiff = -10; // Health -
     longsword.healthDiff = -20;
     dagger.healthDiff = -5;
     grenade.healthDiff = -15;
     suspistol.healthDiff = -999;
+
+    cocaine.consumable = health_potion.consumable = grenade.consumable = 1;
+    broadsword.consumable = longsword.consumable = dagger.consumable = suspistol.consumable = 0;
 
     // Define and setup the different effects
     Effect health_damage;
