@@ -28,14 +28,7 @@ int main(int argc, char *argv[])
         (check) ? rank++ : (void)0;
         (check) ? printf(
             "Rank %d; %d: %f\n", rank, i,
-            (pow(
-                2, 
-                (double)i
-                ) - 1)
-            * pow(
-                2, 
-                (double)( i- 1LL )
-            )
+            ( pow( 2, (double)i) - 1 ) * pow( 2, (double)( i - 1 ) )
         ) : (void)0;
     }
 
