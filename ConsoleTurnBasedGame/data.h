@@ -59,7 +59,4 @@ struct _Player
 };
 typedef struct _Player Player;
 
-Item VOID;
-void setVoid();
-
 #endif

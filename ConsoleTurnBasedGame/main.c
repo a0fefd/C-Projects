@@ -6,8 +6,6 @@
 
 int main(int argc, char **argv) 
 {
-    setVoid();
-
     int running;
 
     // Define each base item

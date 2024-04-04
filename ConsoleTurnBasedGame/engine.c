@@ -6,6 +6,8 @@
 #include "../conio/conio.h"
 #include "../utils_lib/utils.h"
 
+Item VOID;
+
 void getInv(Item *inv, Player p1, Player p2, int turn)
 {
     for (int i = 0; i < 8; i++)
@@ -33,6 +35,22 @@ void sortInv(Item *inv)
     }
 }
 
+void copyInv(Item *dest, Item *src)
+{
+    for (int i = 0; i < 8; i++)
+    {
+        dest[i] = src[i];
+    }
+}
+
+void removeItemInv(Item *inv, int index)
+{
+    for (int i = index; i < 8 - 1 /* 8 is inventory size */; i++)
+    {
+        inv[i] = inv[i + 1];
+    }
+}
+
 Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
 {
     Response res;
@@ -42,6 +60,11 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
     _err_init();
     Error *errors = getErrors();
     Error _err_ClassNum = errors[0];
+
+    strcpy(VOID.name, " ");
+    (&VOID)->type = 'V';
+    (&VOID)->healthDiff = 0;
+    (&VOID)->consumable = 0;
 
     char *scan1 = malloc( 8 * sizeof(char) ); 
     char *scan2 = malloc( 8 * sizeof(char) );
@@ -117,7 +140,7 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
 }
 
 // Command Line User Interface
-void CLUI(Player *p1, Player *p2, int *option, int *running)
+int CLUI(Player *p1, Player *p2, int *option, int *running)
 {
     Item inv[8]; 
 
@@ -129,7 +152,7 @@ void CLUI(Player *p1, Player *p2, int *option, int *running)
         (check) ? ( printf("Player 1 has Died\n") ) : ( printf("Player 2 has Died\n") );
 
         *running = 0;
-        return NONE;
+        return 0;
     }
 
     switch (*option)
@@ -148,7 +171,7 @@ void CLUI(Player *p1, Player *p2, int *option, int *running)
             }
             printf("\n0 to Exit.\n");
             *option = c_getch();
-            break;
+            return 0;
         
         case KEY_2:
             getInv(inv, *p1, *p2, p1->isTurn);
@@ -177,27 +200,21 @@ void CLUI(Player *p1, Player *p2, int *option, int *running)
             } else {
                 // Implement Error maybe
                 *option = 0;
-                break;
+                return 0;
             }
 
-            int index = 0;
-            for (int i = 0; i < 8; i++)
-            {
-                if ( inv[i].name == weaponInv[wp-1].name )
-                {
-                    index = i;
-                    break;
-                }
-            }
+            char **itemNames = malloc( 8 * sizeof( char* ) );
+            for (int i = 0; i < 8; i++) { itemNames[i] = inv[i].name; }
+            int index = findIndexString(itemNames, weaponInv[wp-1].name);
+            free(itemNames);
 
-            if (weaponInv[wp-1].consumable)
-            {
-                inv[index] = VOID;
-            }
+            (inv[index].consumable) ? ( removeItemInv(inv, index) ) : NONE;
+
+            (p1->isTurn) ? ( copyInv( p1->playerClass->inv, inv ) ) : ( copyInv( p2->playerClass->inv, inv ));
 
             *option = 0;
             clrscr();
-            break;
+            return 1;
 
         case 0:
             if (p1->isTurn) 
@@ -213,13 +230,14 @@ void CLUI(Player *p1, Player *p2, int *option, int *running)
             printf("3. Support\n");
             *option = c_getch();
             clrscr();
-            break;
+            return 0;
     }
+    return 0;
 }
 
 int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUNT]) 
 {
-    int option = 0;
+    int option = 0; int check;
 
     Player *pointerP1 = &player1;
     Player *pointerP2 = &player2;
@@ -231,9 +249,10 @@ int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUN
     // Main loop
     while (running)
     {
-        CLUI(pointerP1, pointerP2, &option, &running);
-        invert(&player1.isTurn);
-        invert(&player2.isTurn);
+        check = CLUI(pointerP1, pointerP2, &option, &running);
+        (check) ? ( invert(&player1.isTurn) ) : NONE; 
+        (check) ? ( invert(&player2.isTurn) ) : NONE; 
+        
     }
 
     return 0;
