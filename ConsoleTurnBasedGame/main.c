@@ -6,6 +6,8 @@
 
 int main(int argc, char **argv) 
 {
+    setVoid();
+
     int running;
 
     // Define each base item
@@ -47,7 +49,7 @@ int main(int argc, char **argv)
     Effect health_damage;
     Effect super_health;
     Effect super_damage;
-    Effect death;
+    // Effect death;
 
     health_damage.damageDiff = 10;
     health_damage.damageMulti = 1.2f;
@@ -64,10 +66,10 @@ int main(int argc, char **argv)
     super_damage.healthDiff = -25;
     super_damage.healthMulti = 0.6f;
     
-    death.damageDiff = 0;
-    death.damageMulti = 0;
-    death.healthDiff = -999;
-    death.healthMulti = 0;
+    // death.damageDiff = 0;
+    // death.damageMulti = 0;
+    // death.healthDiff = -999;
+    // death.healthMulti = 0;
 
 
     // Define each base class and their abilities
@@ -103,8 +105,6 @@ int main(int argc, char **argv)
     strcpy(third_reich.message, "just channelled the power of the Third Reich!");
     third_reich.delay = 6;
     third_reich.effect = super_health;
-
-
 
     // Set the Class stats
     strcpy(blackman.name, "Literal Blackman");
@@ -155,18 +155,17 @@ int main(int argc, char **argv)
     austrian_painter.inv[6] = health_potion;
     austrian_painter.inv[7] = health_potion;
 
-    // Define each player
     Player player1;
     Player player2;
 
     // Array of all the classes
-    Class classes[4] = {
-        blackman,
-        vietcong,
-        mexican,
-        austrian_painter
-    };
-    
+    Class *classes[CLASSCOUNT];
+
+    classes[0] = &blackman;
+    classes[1] = &vietcong;
+    classes[2] = &mexican;
+    classes[3] = &austrian_painter;
+
     Response res = Setup(&player1, &player2, classes);
 
     switch (res.ret)

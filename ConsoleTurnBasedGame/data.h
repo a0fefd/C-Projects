@@ -4,6 +4,8 @@
 #ifndef DATA_H_
 #define DATA_H_
 
+#define NONE (void)0
+
 struct _Response
 {
     char message[256];
@@ -16,6 +18,7 @@ struct _Item
     char name[20];
     char type;
     int healthDiff;
+    int consumable;
 };
 typedef struct _Item Item;
 
@@ -52,8 +55,11 @@ struct _Player
     char type;
     int health;
     int isTurn; 
-    Class playerClass;
+    Class *playerClass;
 };
 typedef struct _Player Player;
+
+Item VOID;
+void setVoid();
 
 #endif
