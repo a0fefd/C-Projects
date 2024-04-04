@@ -208,7 +208,7 @@ int CLUI(Player *p1, Player *p2, int *option, int *running)
             int index = findIndexString(itemNames, weaponInv[wp-1].name);
             free(itemNames);
 
-            (inv[index].consumable) ? ( removeItemInv(inv, index) ) : NONE;
+            if (inv[index].consumable) { removeItemInv(inv, index); }
 
             (p1->isTurn) ? ( copyInv( p1->playerClass->inv, inv ) ) : ( copyInv( p2->playerClass->inv, inv ));
 
@@ -237,7 +237,7 @@ int CLUI(Player *p1, Player *p2, int *option, int *running)
 
 int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUNT]) 
 {
-    int option = 0; int check;
+    int option = 0; int check = 0;
 
     Player *pointerP1 = &player1;
     Player *pointerP2 = &player2;
@@ -252,7 +252,7 @@ int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUN
         check = CLUI(pointerP1, pointerP2, &option, &running);
         (check) ? ( invert(&player1.isTurn) ) : NONE; 
         (check) ? ( invert(&player2.isTurn) ) : NONE; 
-        
+        check = 0;
     }
 
     return 0;

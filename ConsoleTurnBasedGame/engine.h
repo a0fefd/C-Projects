@@ -5,8 +5,6 @@
 
 #define CLASSCOUNT 4
 
-void clrscr();
-
 Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT]);
 int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUNT]);
 
