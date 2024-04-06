@@ -7,48 +7,67 @@
 #include "../utils_lib/utils.h"
 
 Item VOID;
+Item *VOIDptr = &VOID;
 
-void getInv(Item *inv, Player p1, Player p2, int turn)
+void initializeInv(Item inv[8])
 {
     for (int i = 0; i < 8; i++)
     {
-        if (p1.isTurn)
-        {
-            inv[i] = p1.playerClass->inv[i];
-        } else {
-            inv[i] = p2.playerClass->inv[i];
-        }
+        inv[i] = *VOIDptr;
     }
 }
 
-void sortInv(Item *inv)
+int findItemIndex(Item inv[8], Item target)
 {
-    Item temp;
+    char **itemNames = malloc( 8 * sizeof( char* ) );
+    for (int i = 0; i < 8; i++) { itemNames[i] = inv[i].name; }
+    
+    int index = findIndexString(itemNames, target.name);
+    
+    free(itemNames);
+    return index;
+}
+
+void getInv(Item inv[8], Player p1, Player p2, int turn)
+{
+    initializeInv(inv);
     for (int i = 0; i < 8; i++)
     {
-        if ( i && ( (inv[i].type == 'W' && inv[i-1].type == 'S') || (inv[i].type == 'S' && inv[i-1].type == 'V') ) )
-        {
-            temp = inv[i-1];
-            inv[i-1] = inv[i];
-            inv[i] = temp;
-        }
+        inv[i] = (turn) ? (p1.playerClass->inv[i]) : (p2.playerClass->inv[i]);
     }
 }
 
-void copyInv(Item *dest, Item *src)
+// void sortInv(Item inv[8])
+// {
+//     Item tmpItem;
+//     for (int i = 0; i < 7; i++)
+//     {
+//         if ((inv[i].type == 'W' && inv[i+1].type == 'S') || 
+//             (inv[i].type == 'W' && inv[i+1].type == 'V') ||
+//             (inv[i].type == 'S' && inv[i+1].type == 'V')  ) 
+//         {
+//             tmpItem = inv[i];
+//             inv[i] = inv[i + 1];
+//             inv[i + 1] = tmpItem;
+//         }
+//     }
+// }
+
+void copyInv(Item dest[8], Item src[8])
 {
-    for (int i = 0; i < 8; i++)
-    {
-        dest[i] = src[i];
-    }
+    initializeInv(dest);
+    memcpy(dest, src, 8 * sizeof(Item) );
 }
 
-void removeItemInv(Item *inv, int index)
+void removeItemInv(Item inv[8], int index)
 {
-    for (int i = index; i < 8 - 1 /* 8 is inventory size */; i++)
+    int voidIndex = findItemIndex(inv, *VOIDptr);
+    if (voidIndex == -1) { voidIndex = 8; }
+    for (int i = index; i < voidIndex-1; i++)
     {
         inv[i] = inv[i + 1];
     }
+    inv[voidIndex-1] = *VOIDptr;
 }
 
 Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
@@ -61,18 +80,18 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
     Error *errors = getErrors();
     Error _err_ClassNum = errors[0];
 
-    strcpy(VOID.name, " ");
-    (&VOID)->type = 'V';
-    (&VOID)->healthDiff = 0;
-    (&VOID)->consumable = 0;
+    strcpy( VOIDptr->name, " ");
+    VOIDptr->type = 'V';
+    VOIDptr->healthDiff = 0;
+    VOIDptr->consumable = 0;
 
-    char *scan1 = malloc( 8 * sizeof(char) ); 
+    char *scan1 = malloc( 8 * sizeof(char) );
     char *scan2 = malloc( 8 * sizeof(char) );
-    
+
     clrscr();
 
     printf("Classes:\n");
-    for (int i = 1; i < 5; i++) 
+    for (int i = 1; i < 5; i++)
     {
         printf("%d. %s\n", i, classes[i-1]->name);
     }
@@ -81,11 +100,11 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
     printf("Enter P1 Class: "); fgets(scan1, sizeof(scan1), stdin);
     printf("Enter P2 Class: "); fgets(scan2, sizeof(scan2), stdin);
 
-    if (atoi(scan1) <= 0 || atoi(scan1) > 4 || 
-        atoi(scan2) <= 0 || atoi(scan2) > 4 ) 
+    if (atoi(scan1) <= 0 || atoi(scan1) > 4 ||
+        atoi(scan2) <= 0 || atoi(scan2) > 4 )
     {
-        free(scan1); free(scan2);        
-        
+        free(scan1); free(scan2);
+
         strcpy(res.message, "Error: ");
         strcat(res.message, _err_ClassNum.cause);
         strcat(res.message, "\n");
@@ -97,12 +116,14 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
 
     player1->playerClass = classes[atoi(scan1)-1];
     player1->health = 100 * player1->playerClass->healthModifier;
+    player1->maxHealth = player1->health;
     player1->identifier = 1;
     player1->isTurn = 1;
     player1->type = 'H';
 
     player2->playerClass = classes[atoi(scan2)-1];
     player2->health = 100 * player2->playerClass->healthModifier;
+    player2->maxHealth = player2->health;
     player2->identifier = 2;
     player2->isTurn = 0;
     player2->type = 'H';
@@ -126,12 +147,7 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
         player2->type
     );
 
-    printf("\nPress Enter to continue. ");
-    for (int ch; ( ch = getchar() ); ) 
-    {
-        if (ch) { break; }
-    }
-
+    pauseEnter();
     clrscr();
 
     // free(player1); free(player2);
@@ -139,31 +155,140 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
     return res;
 }
 
+int useItems(Item inv[8], Player *p1, Player *p2, char itemType, int *option)
+{
+    Item tmpInv[8]; initializeInv(tmpInv);
+    Item tmpInv2[8]; initializeInv(tmpInv2);
+
+    getInv(tmpInv, *p1, *p2, p1->isTurn);
+
+    int itemCount = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        if (tmpInv[i].type == itemType)
+        {
+            tmpInv2[itemCount] = tmpInv[i];
+            itemCount++;
+        }
+    }
+    for (int i = 0; i < itemCount; i++)
+    {
+        printf("%d. %s\n", i+1, tmpInv2[i].name);
+    }
+
+    char key = c_getch(); 
+    
+    clrscr(); 
+    int selectionIndex = atoi( &key ); 
+    if (selectionIndex < 1 || selectionIndex > itemCount) 
+    {
+        *option = 0;
+        return 0;
+    }
+
+    if ( (selectionIndex > 0) && (itemCount >= selectionIndex) )
+    {
+        int healed = (itemType == 'S') ? (1) : (0);
+
+        char *playerA = malloc(9 * sizeof(char));
+        char *playerB = malloc(9 * sizeof(char));
+        char *item = malloc(20 * sizeof(char));
+        char *type = malloc(7 * sizeof(char));
+        int healthChange = tmpInv2[selectionIndex-1].healthDiff;
+        int finalHealth = 0;
+
+        strcpy(item, tmpInv2[selectionIndex-1].name);
+
+        clrscr();
+
+        if (p1->isTurn && healed)
+        {
+            strcpy(playerA, "Player 1");
+            strcpy(playerB, playerA);
+            strcpy(type, "healed");
+            finalHealth = p1->health + healthChange;
+            if (finalHealth > p1->maxHealth) { finalHealth = p1->maxHealth; }
+            p1->health = finalHealth;
+        } else if (p1->isTurn && !healed)
+        {
+            strcpy(playerA, "Player 1");
+            strcpy(playerB, "Player 2");
+            strcpy(type, "taken");
+            finalHealth = p2->health + healthChange;
+            if (finalHealth > p2->maxHealth) { finalHealth = p2->maxHealth; }
+            p2->health = finalHealth;
+        } else if (p2->isTurn && healed)
+        {
+            strcpy(playerA, "Player 2");
+            strcpy(playerB, playerA);
+            strcpy(type, "healed");
+            finalHealth = p2->health + healthChange;
+            if (finalHealth > p2->maxHealth) { finalHealth = p2->maxHealth; }
+            p2->health = finalHealth;
+        } else if (p2->isTurn && !healed)
+        {
+            strcpy(playerA, "Player 2");
+            strcpy(playerB, "Player 1");
+            strcpy(type, "taken");
+            finalHealth = p1->health + healthChange;
+            if (finalHealth > p1->maxHealth) { finalHealth = p1->maxHealth; }
+            p1->health = finalHealth;
+        }
+
+        if (finalHealth < 0) { finalHealth = 0; }
+
+        if (healed && tmpInv2[selectionIndex-1].healthDiff < 0)
+        {
+            strcpy(type, "taken");
+        }
+
+        printf("%s used %s. %s has %s %d and is now on %d", playerA, item, playerB, type, abs(healthChange), finalHealth);
+
+        pauseEnter();
+    } else {
+        // Implement Error maybe
+        *option = 0;
+        return 0;
+    }
+
+    int index = findItemIndex(tmpInv, tmpInv2[selectionIndex-1]);
+    if (inv[index].consumable) { removeItemInv(inv, index); }
+
+    copyInv( inv, tmpInv );
+
+    *option = 0;
+    clrscr();
+    return 0;
+}
+
 // Command Line User Interface
 int CLUI(Player *p1, Player *p2, int *option, int *running)
 {
-    Item inv[8]; 
+    int check;
+    Item inv[8];
 
     if (p1->health <= 0 || p2->health <= 0)
     {
         clrscr();
-        
-        int check = (p1->health <= 0);
+
+        check = (p1->health <= 0);
         (check) ? ( printf("Player 1 has Died\n") ) : ( printf("Player 2 has Died\n") );
 
         *running = 0;
         return 0;
     }
 
+
+    check = (p1->isTurn);
     switch (*option)
     {
         case KEY_0:
-            *option = 0; 
+            *option = 0;
             clrscr();
             break;
-        
+
         case KEY_1:
-            getInv(inv, *p1, *p2, p1->isTurn);
+            getInv(inv, *p1, *p2, check);
 
             for (int i = 0; i < 8; i++)
             {
@@ -172,52 +297,20 @@ int CLUI(Player *p1, Player *p2, int *option, int *running)
             printf("\n0 to Exit.\n");
             *option = c_getch();
             return 0;
-        
+
         case KEY_2:
-            getInv(inv, *p1, *p2, p1->isTurn);
-            
-            Item weaponInv[8]; 
-            // memset(weaponInv, 0, sizeof(weaponInv));
-
-            int weaponCount = 0;
-            for (int i = 0; i < 8; i++)
-            {
-                if (inv[i].type == 'W')
-                {
-                    weaponInv[weaponCount] = inv[i];
-                    weaponCount++;
-                }
-            }
-            for (int i = 0; i < weaponCount; i++)
-            {
-                printf("%d. %s\n", i+1, weaponInv[i].name);
-            }
-
-            int key = c_getch(); int wp = atoi( (char*) &key );
-            if ( (wp > 0) && (weaponCount > wp) )
-            {
-                (p1->isTurn) ? (p2->health += weaponInv[wp-1].healthDiff) : (p1->health += weaponInv[wp-1].healthDiff);
-            } else {
-                // Implement Error maybe
-                *option = 0;
-                return 0;
-            }
-
-            char **itemNames = malloc( 8 * sizeof( char* ) );
-            for (int i = 0; i < 8; i++) { itemNames[i] = inv[i].name; }
-            int index = findIndexString(itemNames, weaponInv[wp-1].name);
-            free(itemNames);
-
-            if (inv[index].consumable) { removeItemInv(inv, index); }
-
-            (p1->isTurn) ? ( copyInv( p1->playerClass->inv, inv ) ) : ( copyInv( p2->playerClass->inv, inv ));
-
-            *option = 0;
-            clrscr();
+            useItems(inv, p1, p2, 'W', option);
+            (check) ? (copyInv( p1->playerClass->inv, inv )) : (copyInv( p2->playerClass->inv, inv ));
             return 1;
 
+        case KEY_3:
+            useItems(inv, p1, p2, 'S', option);
+            (check) ? (copyInv( p1->playerClass->inv, inv )) : (copyInv( p2->playerClass->inv, inv ));
+            return 0;
+
         case 0:
-            if (p1->isTurn) 
+            clrscr();
+            if (check)
             {
                 printf("----- Player 1 ------ \n");
                 printf("Health: %d\n", p1->health);
@@ -235,23 +328,23 @@ int CLUI(Player *p1, Player *p2, int *option, int *running)
     return 0;
 }
 
-int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUNT]) 
+int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUNT])
 {
-    int option = 0; int check = 0;
+    int option = 0; int check;
 
     Player *pointerP1 = &player1;
     Player *pointerP2 = &player2;
-
-    sortInv(pointerP1->playerClass->inv);
-    sortInv(pointerP2->playerClass->inv);
 
     clrscr();
     // Main loop
     while (running)
     {
+        // sortInv(pointerP1->playerClass->inv);
+        // sortInv(pointerP2->playerClass->inv);
+
         check = CLUI(pointerP1, pointerP2, &option, &running);
-        (check) ? ( invert(&player1.isTurn) ) : NONE; 
-        (check) ? ( invert(&player2.isTurn) ) : NONE; 
+        (check) ? ( invert(&player1.isTurn) ) : NONE;
+        (check) ? ( invert(&player2.isTurn) ) : NONE;
         check = 0;
     }
 
