@@ -6,57 +6,35 @@
 
 #define NONE (void)0
 
-struct _Response
+typedef struct Response
 {
     char message[256];
     int ret;
-};
-typedef struct _Response Response;
+} Response;
 
-struct _Item 
+typedef struct Item 
 {
     char name[20];
     char type;
     int healthDiff;
     int consumable;
-};
-typedef struct _Item Item;
+} Item;
 
-struct _Effect 
-{
-    int healthDiff;
-    float healthMulti;
-    int damageDiff;
-    float damageMulti;
-};
-typedef struct _Effect Effect;
-
-struct _ClassAbility
-{
-    char name[64];
-    char message[64];
-    int delay;
-    Effect effect;
-};
-typedef struct _ClassAbility ClassAbility;
-
-struct _Class 
+typedef struct Class 
 {
     char name[20];
     float healthModifier;
-    ClassAbility ability;
     Item inv[8];
-};
-typedef struct _Class Class;
+} Class;
 
-struct _Player 
+typedef struct Player 
 {
     int identifier;
     char type;
     int health;
+    int maxHealth;
     int isTurn; 
     Class *playerClass;
-};
-typedef struct _Player Player;
+} Player;
 
 #endif
