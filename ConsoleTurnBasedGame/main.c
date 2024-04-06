@@ -31,83 +31,27 @@ int main(int argc, char **argv)
     health_potion.type = cocaine.type = suspistol.type = 'S'; // Support
 
     // Set the final item stats
-    cocaine.healthDiff = 10; // Health +
+    cocaine.healthDiff = 15; // Health +
     health_potion.healthDiff = 25;
 
-    broadsword.healthDiff = -10; // Health -
-    longsword.healthDiff = -20;
-    dagger.healthDiff = -5;
-    grenade.healthDiff = -15;
+    broadsword.healthDiff = -15; // Health -
+    longsword.healthDiff = -25;
+    dagger.healthDiff = -10;
+    grenade.healthDiff = -30;
     suspistol.healthDiff = -999;
 
     cocaine.consumable = health_potion.consumable = grenade.consumable = 1;
     broadsword.consumable = longsword.consumable = dagger.consumable = suspistol.consumable = 0;
 
-    // Define and setup the different effects
-    Effect health_damage;
-    Effect super_health;
-    Effect super_damage;
-    // Effect death;
-
-    health_damage.damageDiff = 10;
-    health_damage.damageMulti = 1.2f;
-    health_damage.healthDiff = 40;
-    health_damage.healthMulti = 1.1f;
-    
-    super_health.damageDiff = 0;
-    super_health.damageMulti = 0.25f;
-    super_health.healthDiff = 100;
-    super_health.healthMulti = 2.0f;
-    
-    super_damage.damageDiff = 25;
-    super_damage.damageMulti = 1.75f;
-    super_damage.healthDiff = -25;
-    super_damage.healthMulti = 0.6f;
-    
-    // death.damageDiff = 0;
-    // death.damageMulti = 0;
-    // death.healthDiff = -999;
-    // death.healthMulti = 0;
-
-
-    // Define each base class and their abilities
+    // Define each base class
     Class blackman;
-    ClassAbility dropped_soap;
-
     Class vietcong;
-    ClassAbility one_with_the_trees;
-    
     Class mexican;
-    ClassAbility coke_vacuum;
-
     Class austrian_painter;
-    ClassAbility third_reich;
-
-    // Setup the abilities
-    strcpy(dropped_soap.name, "Make them Drop the Soap");
-    strcpy(dropped_soap.message, "just dropped the soap!");
-    dropped_soap.delay = 5;
-    dropped_soap.effect = super_damage;
-
-    strcpy(one_with_the_trees.name, "Become One with the Trees");
-    strcpy(one_with_the_trees.message, "has fused with nature!");
-    one_with_the_trees.delay = 4;
-    one_with_the_trees.effect = health_damage;
-
-    strcpy(coke_vacuum.name, "Your Nose is now a Vacuum");
-    strcpy(coke_vacuum.message, "has turned their nostrils into a Coke Vacuum!");
-    coke_vacuum.delay = 2;
-    coke_vacuum.effect = health_damage;
-
-    strcpy(third_reich.name, "Summon the power of the Third Reich");
-    strcpy(third_reich.message, "just channelled the power of the Third Reich!");
-    third_reich.delay = 6;
-    third_reich.effect = super_health;
 
     // Set the Class stats
     strcpy(blackman.name, "Literal Blackman");
-    blackman.healthModifier = 1.5f;
-    blackman.ability = dropped_soap;
+    blackman.healthModifier = 1.2f;
     blackman.inv[0] = longsword;
     blackman.inv[1] = grenade;
     blackman.inv[2] = grenade;
@@ -118,8 +62,7 @@ int main(int argc, char **argv)
     blackman.inv[7] = health_potion;
     
     strcpy(vietcong.name, "Vietcong Soldier");
-    vietcong.healthModifier = 0.8f;
-    vietcong.ability = one_with_the_trees;
+    vietcong.healthModifier = 0.9f;
     vietcong.inv[0] = broadsword;
     vietcong.inv[1] = dagger;
     vietcong.inv[2] = grenade;
@@ -130,8 +73,7 @@ int main(int argc, char **argv)
     vietcong.inv[7] = health_potion;
 
     strcpy(mexican.name, "Mexican Druggy"); 
-    mexican.healthModifier = 0.6f;
-    mexican.ability = coke_vacuum;
+    mexican.healthModifier = 0.8f;
     mexican.inv[0] = dagger;
     mexican.inv[1] = grenade;
     mexican.inv[2] = grenade;
@@ -143,7 +85,6 @@ int main(int argc, char **argv)
     
     strcpy(austrian_painter.name, "An Austrian Painter");
     austrian_painter.healthModifier = 1.0f;
-    austrian_painter.ability = third_reich;
     austrian_painter.inv[0] = dagger;
     austrian_painter.inv[1] = suspistol;
     austrian_painter.inv[2] = grenade;
