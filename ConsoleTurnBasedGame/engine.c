@@ -19,13 +19,15 @@ void initializeInv(Item inv[8])
 
 int findItemIndex(Item inv[8], Item target)
 {
-    char **itemNames = malloc( 8 * sizeof( char* ) );
-    for (int i = 0; i < 8; i++) { itemNames[i] = inv[i].name; }
-    
-    int index = findIndexString(itemNames, target.name);
-    
-    free(itemNames);
-    return index;
+    for (int i = 0; i < 8; i++)
+    {
+        printf("Target: %s", target.name);
+        if (inv[i].id == target.id) 
+        {
+            return i; 
+        }
+    }
+    return -1;
 }
 
 void getInv(Item inv[8], Player p1, Player p2, int turn)
@@ -37,21 +39,21 @@ void getInv(Item inv[8], Player p1, Player p2, int turn)
     }
 }
 
-// void sortInv(Item inv[8])
-// {
-//     Item tmpItem;
-//     for (int i = 0; i < 7; i++)
-//     {
-//         if ((inv[i].type == 'W' && inv[i+1].type == 'S') || 
-//             (inv[i].type == 'W' && inv[i+1].type == 'V') ||
-//             (inv[i].type == 'S' && inv[i+1].type == 'V')  ) 
-//         {
-//             tmpItem = inv[i];
-//             inv[i] = inv[i + 1];
-//             inv[i + 1] = tmpItem;
-//         }
-//     }
-// }
+void sortInv(Item inv[8])
+{
+    Item tmpItem;
+    for (int i = 0; i < 8; i++)
+    {
+        if (i && ((inv[i].type == 'W' && inv[i+1].type == 'S') || 
+                  (inv[i].type == 'W' && inv[i+1].type == 'V') ||
+                  (inv[i].type == 'S' && inv[i+1].type == 'V') )) 
+        {
+            tmpItem = inv[i - 1];
+            inv[i - 1] = inv[i];
+            inv[i] = tmpItem;
+        }
+    }
+}
 
 void copyInv(Item dest[8], Item src[8])
 {
@@ -61,24 +63,24 @@ void copyInv(Item dest[8], Item src[8])
 
 void removeItemInv(Item inv[8], int index)
 {
-    int voidIndex = findItemIndex(inv, *VOIDptr);
-    if (voidIndex == -1) { voidIndex = 8; }
-    for (int i = index; i < voidIndex-1; i++)
+    for (int i = index; i < 8; i++)
     {
         inv[i] = inv[i + 1];
     }
-    inv[voidIndex-1] = *VOIDptr;
+    inv[7] = *VOIDptr;
 }
 
 Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
 {
     Response res;
     memset(res.message, '\0', sizeof(res.message));
+    strcpy(res.message, "Error: ");
     res.ret = 0;
 
     _err_init();
     Error *errors = getErrors();
     Error _err_ClassNum = errors[0];
+    Error _err_ClassDuplicate = errors[1];
 
     strcpy( VOIDptr->name, " ");
     VOIDptr->type = 'V';
@@ -100,12 +102,13 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
     printf("Enter P1 Class: "); fgets(scan1, sizeof(scan1), stdin);
     printf("Enter P2 Class: "); fgets(scan2, sizeof(scan2), stdin);
 
-    if (atoi(scan1) <= 0 || atoi(scan1) > 4 ||
-        atoi(scan2) <= 0 || atoi(scan2) > 4 )
-    {
-        free(scan1); free(scan2);
+    int iScan1 = atoi(scan1);
+    int iScan2 = atoi(scan2);
+    free(scan1); free(scan2);
 
-        strcpy(res.message, "Error: ");
+    if (iScan1 <= 0 || iScan1 > 4 ||
+        iScan2 <= 0 || iScan2 > 4 )
+    {
         strcat(res.message, _err_ClassNum.cause);
         strcat(res.message, "\n");
         strcat(res.message, _err_ClassNum.message);
@@ -114,21 +117,29 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
         return res;
     }
 
-    player1->playerClass = classes[atoi(scan1)-1];
+    if (iScan1 == iScan2)
+    {
+        strcat(res.message, _err_ClassDuplicate.cause);
+        strcat(res.message, "\n");
+        strcat(res.message, _err_ClassDuplicate.message);
+
+        res.ret = _err_ClassDuplicate._return;
+        return res;
+    }
+
+    player1->playerClass = classes[iScan1];
     player1->health = 100 * player1->playerClass->healthModifier;
     player1->maxHealth = player1->health;
     player1->identifier = 1;
     player1->isTurn = 1;
     player1->type = 'H';
 
-    player2->playerClass = classes[atoi(scan2)-1];
+    player2->playerClass = classes[iScan2];
     player2->health = 100 * player2->playerClass->healthModifier;
     player2->maxHealth = player2->health;
     player2->identifier = 2;
     player2->isTurn = 0;
     player2->type = 'H';
-
-    free(scan1); free(scan2);
 
     printf(
         "\nPlayer 1\nClass: %s\nHealth: %d\nID: %d\nTurn?: %d\nType: %c\n",
@@ -186,73 +197,68 @@ int useItems(Item inv[8], Player *p1, Player *p2, char itemType, int *option)
         return 0;
     }
 
-    if ( (selectionIndex > 0) && (itemCount >= selectionIndex) )
+    int healed = (itemType == 'S') ? (1) : (0);
+
+    char *playerA = malloc(9 * sizeof(char));
+    char *playerB = malloc(9 * sizeof(char));
+    char *item = malloc(20 * sizeof(char));
+    char *type = malloc(7 * sizeof(char));
+    int healthChange = tmpInv2[selectionIndex-1].healthDiff;
+    int finalHealth = 0;
+
+    strcpy(item, tmpInv2[selectionIndex-1].name);
+
+    clrscr();
+
+    if (p1->isTurn && healed)
     {
-        int healed = (itemType == 'S') ? (1) : (0);
-
-        char *playerA = malloc(9 * sizeof(char));
-        char *playerB = malloc(9 * sizeof(char));
-        char *item = malloc(20 * sizeof(char));
-        char *type = malloc(7 * sizeof(char));
-        int healthChange = tmpInv2[selectionIndex-1].healthDiff;
-        int finalHealth = 0;
-
-        strcpy(item, tmpInv2[selectionIndex-1].name);
-
-        clrscr();
-
-        if (p1->isTurn && healed)
-        {
-            strcpy(playerA, "Player 1");
-            strcpy(playerB, playerA);
-            strcpy(type, "healed");
-            finalHealth = p1->health + healthChange;
-            if (finalHealth > p1->maxHealth) { finalHealth = p1->maxHealth; }
-            p1->health = finalHealth;
-        } else if (p1->isTurn && !healed)
-        {
-            strcpy(playerA, "Player 1");
-            strcpy(playerB, "Player 2");
-            strcpy(type, "taken");
-            finalHealth = p2->health + healthChange;
-            if (finalHealth > p2->maxHealth) { finalHealth = p2->maxHealth; }
-            p2->health = finalHealth;
-        } else if (p2->isTurn && healed)
-        {
-            strcpy(playerA, "Player 2");
-            strcpy(playerB, playerA);
-            strcpy(type, "healed");
-            finalHealth = p2->health + healthChange;
-            if (finalHealth > p2->maxHealth) { finalHealth = p2->maxHealth; }
-            p2->health = finalHealth;
-        } else if (p2->isTurn && !healed)
-        {
-            strcpy(playerA, "Player 2");
-            strcpy(playerB, "Player 1");
-            strcpy(type, "taken");
-            finalHealth = p1->health + healthChange;
-            if (finalHealth > p1->maxHealth) { finalHealth = p1->maxHealth; }
-            p1->health = finalHealth;
-        }
-
-        if (finalHealth < 0) { finalHealth = 0; }
-
-        if (healed && tmpInv2[selectionIndex-1].healthDiff < 0)
-        {
-            strcpy(type, "taken");
-        }
-
-        printf("%s used %s. %s has %s %d and is now on %d", playerA, item, playerB, type, abs(healthChange), finalHealth);
-
-        pauseEnter();
-    } else {
-        // Implement Error maybe
-        *option = 0;
-        return 0;
+        strcpy(playerA, "Player 1");
+        strcpy(playerB, playerA);
+        strcpy(type, "healed");
+        finalHealth = p1->health + healthChange;
+        if (finalHealth > p1->maxHealth) { finalHealth = p1->maxHealth; }
+        p1->health = finalHealth;
+    } else if (p1->isTurn && !healed)
+    {
+        strcpy(playerA, "Player 1");
+        strcpy(playerB, "Player 2");
+        strcpy(type, "taken");
+        finalHealth = p2->health + healthChange;
+        if (finalHealth > p2->maxHealth) { finalHealth = p2->maxHealth; }
+        p2->health = finalHealth;
+    } else if (p2->isTurn && healed)
+    {
+        strcpy(playerA, "Player 2");
+        strcpy(playerB, playerA);
+        strcpy(type, "healed");
+        finalHealth = p2->health + healthChange;
+        if (finalHealth > p2->maxHealth) { finalHealth = p2->maxHealth; }
+        p2->health = finalHealth;
+    } else if (p2->isTurn && !healed)
+    {
+        strcpy(playerA, "Player 2");
+        strcpy(playerB, "Player 1");
+        strcpy(type, "taken");
+        finalHealth = p1->health + healthChange;
+        if (finalHealth > p1->maxHealth) { finalHealth = p1->maxHealth; }
+        p1->health = finalHealth;
     }
 
+    if (finalHealth < 0) { finalHealth = 0; }
+
+    if (healed && tmpInv2[selectionIndex-1].healthDiff < 0)
+    {
+        strcpy(type, "taken");
+    }
+
+    printf("%s used %s. %s has %s %d and is now on %d", playerA, item, playerB, type, abs(healthChange), finalHealth);
+    free(playerA); free(playerB); free(item); free(type);
+
+    pauseEnter();
+
     int index = findItemIndex(tmpInv, tmpInv2[selectionIndex-1]);
-    if (inv[index].consumable) { removeItemInv(inv, index); }
+
+    if (inv[index].consumable) { removeItemInv(tmpInv, index); }
 
     copyInv( inv, tmpInv );
 
@@ -309,6 +315,7 @@ int CLUI(Player *p1, Player *p2, int *option, int *running)
             return 0;
 
         case 0:
+            check = (p1->isTurn);
             clrscr();
             if (check)
             {
@@ -339,8 +346,8 @@ int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUN
     // Main loop
     while (running)
     {
-        // sortInv(pointerP1->playerClass->inv);
-        // sortInv(pointerP2->playerClass->inv);
+        sortInv(pointerP1->playerClass->inv);
+        sortInv(pointerP2->playerClass->inv);
 
         check = CLUI(pointerP1, pointerP2, &option, &running);
         (check) ? ( invert(&player1.isTurn) ) : NONE;
