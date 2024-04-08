@@ -18,6 +18,7 @@ typedef struct Item
     char type;
     int healthDiff;
     int consumable;
+    unsigned char id;
 } Item;
 
 typedef struct Class 

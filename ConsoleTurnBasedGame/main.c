@@ -17,6 +17,15 @@ int main(int argc, char **argv)
     Item cocaine;
     Item suspistol;
 
+    // Set item id's
+    broadsword.id = 1;
+    longsword.id = 2;
+    health_potion.id = 3;
+    dagger.id = 4;
+    grenade.id = 5;
+    cocaine.id = 6;
+    suspistol.id = 7;
+
     // Set the name of each item
     strcpy(broadsword.name, "Broadsword");
     strcpy(longsword.name, "Longsword");
