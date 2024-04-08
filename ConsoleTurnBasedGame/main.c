@@ -3,6 +3,7 @@
 #include <string.h>
 #include "data.h"
 #include "engine.h"
+#include "../utils_lib/utils.h"
 
 int main(int argc, char **argv) 
 {
@@ -119,10 +120,15 @@ int main(int argc, char **argv)
     switch (res.ret)
     {
     case -1:
-        printf("\n%s\n", res.message);
+        printf("\n%s", res.message);
+        pauseEnter();
+        
         return -1;
         // break;
     default:
+        pauseEnter();
+        clrscr();
+
         running = 1;
         Engine(running, player1, player2, classes);
         break;

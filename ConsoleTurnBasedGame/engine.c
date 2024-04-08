@@ -157,11 +157,6 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
         player2->type
     );
 
-    pauseEnter();
-    clrscr();
-
-    // free(player1); free(player2);
-
     return res;
 }
 
@@ -355,6 +350,8 @@ int Engine(int running, Player player1, Player player2, Class *classes[CLASSCOUN
         (check) ? ( invert(&player2.isTurn) ) : NONE;
         check = 0;
     }
+
+    pauseEnter();
 
     return 0;
 }
