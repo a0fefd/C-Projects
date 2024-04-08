@@ -6,18 +6,15 @@
 // Clears the console screen.
 void clrscr()
 {
-    // Uhhh don't mind this mess
-    /*
+    
     #if _WIN64 
         system("cls");
     #elif _WIN32
         system("cls");
     #else
-        system("clear");
+        printf("\e[1;1H\e[2J");
+        // system("clear");
     #endif
-    */
-    
-    printf("\e[1;1H\e[2J");
 }
 
 // Inverts an integer.
