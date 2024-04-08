@@ -1,17 +1,21 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "utils.h"
 
 // Clears the console screen.
 void clrscr()
 {
-    // #if _WIN64 
-    //     system("cls");
-    // #elif _WIN32
-    //     system("cls");
-    // #else
-    //     system("clear");
-    // #endif
+    // Uhhh don't mind this mess
+    /*
+    #if _WIN64 
+        system("cls");
+    #elif _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+    */
     
     printf("\e[1;1H\e[2J");
 }
@@ -34,48 +38,7 @@ void pauseEnter()
     printf("\n\nPress Enter to continue...");
 
     FILE *f = tmpfile();
+    // it can take any char but it instantly continues when enter is pressed so...
     fread(f, sizeof(char), 1, stdin);
     fclose(f);
-}
-
-// Finds the index of an integer in an integer array.
-int findIndexInt(int *arr, int target)
-{
-    size_t arrSize = sizeof(arr) / sizeof(int*);
-    for (int i = 0; i < arrSize; i++)
-    {
-        if (arr[i] == target) 
-        { 
-            return i; 
-        }
-    }
-    return -1;
-}
-
-// Finds the index of a character in a character array.
-int findIndexChar(char *arr, char target)
-{
-    size_t arrSize = sizeof(arr) / sizeof(char*);
-    for (int i = 0; i < arrSize; i++)
-    {
-        if (arr[i] == target) 
-        { 
-            return i; 
-        }
-    }
-    return -1;
-}
-
-// Finds the index of a character string in a character string array.
-int findIndexString(char **arr, char *target)
-{
-    size_t arrSize = sizeof(arr) / sizeof(char**);
-    for (int i = 0; i < arrSize; i++)
-    {
-        if (arr[i] == target) 
-        { 
-            return i; 
-        }
-    }
-    return -1;
 }
