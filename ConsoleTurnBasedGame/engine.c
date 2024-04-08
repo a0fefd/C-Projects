@@ -263,7 +263,7 @@ int useItems(Item inv[8], Player *p1, Player *p2, char itemType, int *option)
 
     *option = 0;
     clrscr();
-    return 0;
+    return 1;
 }
 
 // Command Line User Interface
@@ -304,9 +304,11 @@ int CLUI(Player *p1, Player *p2, int *option, int *running)
             return 0;
 
         case KEY_2:
-            useItems(inv, p1, p2, 'W', option);
-            (check) ? (copyInv( p1->playerClass->inv, inv )) : (copyInv( p2->playerClass->inv, inv ));
-            return 1;
+            int useageReturn = useItems(inv, p1, p2, 'W', option);
+            if (useageReturn) {
+                (check) ? (copyInv( p1->playerClass->inv, inv )) : (copyInv( p2->playerClass->inv, inv ));
+                return 1;
+            } else { return 0; }
 
         case KEY_3:
             useItems(inv, p1, p2, 'S', option);
