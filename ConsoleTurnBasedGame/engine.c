@@ -126,14 +126,14 @@ Response Setup(Player *player1, Player *player2, Class *classes[CLASSCOUNT])
         return res;
     }
 
-    player1->playerClass = classes[iScan1];
+    player1->playerClass = classes[iScan1 - 1];
     player1->health = 100 * player1->playerClass->healthModifier;
     player1->maxHealth = player1->health;
     player1->identifier = 1;
     player1->isTurn = 1;
     player1->type = 'H';
 
-    player2->playerClass = classes[iScan2];
+    player2->playerClass = classes[iScan2 - 1];
     player2->health = 100 * player2->playerClass->healthModifier;
     player2->maxHealth = player2->health;
     player2->identifier = 2;
@@ -269,7 +269,7 @@ int useItems(Item inv[8], Player *p1, Player *p2, char itemType, int *option)
 // Command Line User Interface
 int CLUI(Player *p1, Player *p2, int *option, int *running)
 {
-    int check;
+    int check; int useageReturn;
     Item inv[8];
 
     if (p1->health <= 0 || p2->health <= 0)
@@ -304,7 +304,7 @@ int CLUI(Player *p1, Player *p2, int *option, int *running)
             return 0;
 
         case KEY_2:
-            int useageReturn = useItems(inv, p1, p2, 'W', option);
+            useageReturn = useItems(inv, p1, p2, 'W', option);
             if (useageReturn) {
                 (check) ? (copyInv( p1->playerClass->inv, inv )) : (copyInv( p2->playerClass->inv, inv ));
                 return 1;
