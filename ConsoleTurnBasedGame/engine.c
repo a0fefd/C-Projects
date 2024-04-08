@@ -21,7 +21,6 @@ int findItemIndex(Item inv[8], Item target)
 {
     for (int i = 0; i < 8; i++)
     {
-        printf("Target: %s", target.name);
         if (inv[i].id == target.id) 
         {
             return i; 
