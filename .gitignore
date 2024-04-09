@@ -6,3 +6,7 @@
 */*.json
 \.vscode
 !*/Makefile
+
+# Custom excludes #
+## UTILS_LIB ##
+utils_lib/testing.c
