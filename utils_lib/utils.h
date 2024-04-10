@@ -17,6 +17,9 @@ void clrscr();
 void invert(int *var);
 void pauseEnter();
 
+int isPrime(int num);
+long long int factorial(int num);
+
 #ifdef __cplusplus
     }
 #endif

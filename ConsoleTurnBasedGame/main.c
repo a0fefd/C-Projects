@@ -114,6 +114,7 @@ int main(int argc, char **argv)
     classes[1] = &vietcong;
     classes[2] = &mexican;
     classes[3] = &austrian_painter;
+	// add "white" class
 
     Response res = Setup(&player1, &player2, classes);
 

@@ -32,10 +32,47 @@ void invert(int *var)
 // Continues when enter is pressed.
 void pauseEnter()
 {
-    printf("\n\nPress Enter to continue...");
+     printf("\n\nPress Enter to continue...");
 
     FILE *f = tmpfile();
     // it can take any char but it instantly continues when enter is pressed so...
     fread(f, sizeof(char), 1, stdin);
-    fclose(f);
+    fclose(f);  
 }
+
+int isPrime(int num)
+{
+	int factorCountThing = (int) ( (num + 1) / 2 );
+
+	int factors[factorCountThing];
+    memset(factors, 0, sizeof(factors));
+
+    int index = 0;
+    for (int n = 2; n < factorCountThing; n++)
+    {
+        if (num % n == 0) 
+        {
+            factors[index] = n;
+            index++;
+        }
+    }
+
+    if (factors[0] != 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+long long int factorial(int num)
+{
+	long long int out = 1;
+
+	for (int i = 1; i < num + 1; i++) {
+		out *= i;
+	}
+	
+	return out;
+}
+
