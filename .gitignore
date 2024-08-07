@@ -7,6 +7,11 @@
 \.vscode
 !*/Makefile
 
+!RocketGame/*
+RocketGame/"cmake-build-debug"/
+RocketGame/include/
+RocketGame/src/
+
 # Custom excludes #
 ## UTILS_LIB ##
 utils_lib/testing.c

@@ -1,0 +1,3 @@
+D:/nbigi0/My Documents/Coding/C/RocketGame/cmake-build-debug/CMakeFiles/RocketGame.dir
+D:/nbigi0/My Documents/Coding/C/RocketGame/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/nbigi0/My Documents/Coding/C/RocketGame/cmake-build-debug/CMakeFiles/rebuild_cache.dir
